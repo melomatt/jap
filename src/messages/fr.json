@@ -1,0 +1,128 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "advisors": "Rencontrez nos Conseillers",
+    "services": "Services",
+    "contact": "Nous Contacter",
+    "bookAppointment": "Réserver une Évaluation Gratuite",
+    "getQuote": "Obtenir un Devis Personnalisé"
+  },
+  "hero": {
+    "title": "Services Juridiques Experts",
+    "subtitle": "Solutions Juridiques de Confiance pour Votre Entreprise",
+    "cta": "Obtenir un Devis",
+    "description": "Chez Justice Advocates & Partners, nous fournissons une expertise juridique complète adaptée à vos besoins."
+  },
+  "advisors": {
+    "title": "RENCONTREZ NOS CONSEILLERS",
+    "subtitle": "Notre équipe de professionnels juridiques expérimentés"
+  },
+  "services": {
+    "title": "Nous Apportons des Solutions en Soutenant le Système Juridique",
+    "subtitle": "Justice Advocates & Partners, Inc. fournit des conseils juridiques stratégiques avec intégrité et un plaidoyer axé sur les résultats dans divers domaines juridiques.",
+    "corporate": "Droit des Sociétés et Commercial",
+    "corporateDesc": "Soutien juridique complet pour la gouvernance d'entreprise, les contrats et la conformité.",
+    "banking": "Banque et Finance",
+    "bankingDesc": "Conseils d'experts en transactions financières, réglementations bancaires et questions d'investissement.",
+    "litigation": "Litige Commercial et Civil",
+    "litigationDesc": "Représentation agressive et résolution pour les litiges commerciaux et civils.",
+    "realEstate": "Immobilier et Cession",
+    "realEstateDesc": "Services juridiques complets pour les transactions immobilières, cessions et questions immobilières.",
+    "exploreAll": "Explorer Tous les Services",
+    "seeLess": "Voir Moins de Services",
+    "fullTitle": "Nos Services Juridiques Complets",
+    "fullSubtitle": "Justice Advocates & Partners, Inc. fournit une expertise juridique complète dans 13 domaines de pratique spécialisés.",
+    "practices": {
+      "bankingFinance": "Banque et Finance",
+      "bankingFinanceDesc": "Réglementations bancaires complètes, transactions financières et services de conseil en investissement.",
+      "projectsInfrastructure": "Projets et Infrastructure",
+      "projectsInfrastructureDesc": "Soutien juridique pour les grands projets, le développement d'infrastructure et les partenariats public-privé.",
+      "energyMining": "Énergie, Pétrole, Gaz et Mines",
+      "energyMiningDesc": "Conseils juridiques spécialisés pour le secteur énergétique, les opérations minières et les ressources naturelles.",
+      "corporateCommercial": "Droit des Sociétés et Commercial",
+      "corporateCommercialDesc": "Formation d'entreprises, gouvernance d'entreprise, fusions, acquisitions et transactions commerciales.",
+      "mergersAcquisitions": "Fusions et Acquisitions",
+      "mergersAcquisitionsDesc": "Conseil stratégique pour les fusions d'entreprises, acquisitions et restructuration d'entreprises.",
+      "labor": "Droit du Travail et Questions Connexes",
+      "laborDesc": "Droit du travail, relations de travail, conflits professionnels et conformité des ressources humaines.",
+      "realEstate": "Immobilier et Cession",
+      "realEstateDesc": "Droit immobilier, transactions immobilières, cessions et réglementations d'utilisation des terres.",
+      "tax": "Fiscalité et Questions Connexes",
+      "taxDesc": "Planification fiscale, conformité, services de conseil et résolution des litiges fiscaux.",
+      "telecommunications": "Télécommunications",
+      "telecommunicationsDesc": "Services juridiques pour l'industrie des télécommunications, conformité réglementaire et droit technologique.",
+      "businessEstablishment": "Création de Véhicules d'Entreprise",
+      "businessEstablishmentDesc": "Formation et enregistrement d'entités à but lucratif et non lucratif, licences d'entreprises.",
+      "disputeLitigation": "Litige Commercial et Civil",
+      "disputeLitigationDesc": "Représentation devant les tribunaux, résolution alternative des litiges et gestion des litiges.",
+      "legalConsultancy": "Conseil Juridique et Représentation Administrative",
+      "legalConsultancyDesc": "Conseils juridiques généraux, représentation administrative et conformité réglementaire.",
+      "contracts": "Rédaction et Révision de Contrats",
+      "contractsDesc": "Rédaction de contrats, révision, négociation et services d'accords commerciaux."
+    }
+  },
+  "about": {
+    "section": "À Propos de Nous",
+    "established": "ÉTABLI DÉCEMBRE 16, 2020",
+    "description": "Justice Advocates & Partners, Inc. a été créé le 16 décembre 2020 et a commencé ses opérations le 4 janvier 2021. Le cabinet a été fondé par G. Moses Paegar, Golda A. Bonah Elliott et Albert S. Sims, tous avocats autorisés à exercer devant la Cour suprême honorable du Liberia. Chacun des fondateurs a plus de quinze ans de pratique juridique, avec une expertise approfondie en représentation juridique d'entreprises et de sociétés commerciales et un portefeuille de clients multinationaux opérant au Liberia. Justice Advocates & Partners, Inc. (JAP Inc.) est dûment établi selon les lois de la République du Liberia et autorisé à fournir des services juridiques et de consultation aux entités/personnes résidentes et non résidentes au Liberia.",
+    "mission": "Notre Mission",
+    "missionDesc": "Fournir une représentation juridique exceptionnelle avec un dévouement inébranlable aux droits et intérêts de nos clients.",
+    "vision": "Notre Vision",
+    "visionDesc": "Être le cabinet juridique leader reconnu pour l'innovation, l'excellence et l'impact communautaire.",
+    "values": "Nos Valeurs",
+    "valuesDesc": "L'intégrité, le professionnalisme et le service axé sur le client guident tout ce que nous faisons."
+  },
+  "testimonials": {
+    "title": "LES UTILISATEURS HEUREUX PARLENT DE NOUS"
+  },
+  "stats": {
+    "title": "NOTRE APPROCHE GUIDÉE PAR LA PLANIFICATION",
+    "cases": "Cas Fermés",
+    "rate": "Taux de Réussite",
+    "experience": "Années d'Expérience"
+  },
+  "team": {
+    "title": "RENCONTREZ NOS CONSEILLERS",
+    "subtitle": "Notre équipe de professionnels juridiques expérimentés"
+  },
+  "faq": {
+    "title": "OBTENEZ DES RÉPONSES SOLIDES DE TOUS LES CÔTÉS"
+  },
+  "insights": {
+    "title": "PERSPECTIVES DE L'ENTREPRISE"
+  },
+  "booking": {
+    "title": "Réservez Votre Évaluation Gratuite",
+    "subtitle": "Planifiez une consultation avec nos professionnels juridiques expérimentés",
+    "fullName": "Nom Complet",
+    "email": "Adresse E-mail",
+    "phone": "Numéro de Téléphone",
+    "preferredDate": "Date Préférée",
+    "legalMatter": "Domaine Juridique",
+    "message": "Description Brève de Votre Cas",
+    "submit": "Réserver l'Évaluation",
+    "success": "Demande de réservation soumise avec succès. Vérifiez votre email de confirmation bientôt."
+  },
+  "quote": {
+    "title": "Obtenez Votre Devis Personnalisé",
+    "subtitle": "Parlez-nous de vos besoins juridiques et recevez un devis personnalisé de nos experts",
+    "submit": "Demander un Devis"
+  },
+  "footer": {
+    "copyright": "© 2026 Justice Advocates & Partners, Inc. Tous droits réservés. Autorisé au Liberia.",
+    "description": "Justice Advocates & Partners, Inc. est un cabinet juridique basé au Liberia spécialisé dans les services juridiques d'entreprise, commerciaux et de contentieux. Nous combinons des décennies d'expérience avec une approche centrée sur le client.",
+    "headOffice": "Siège Social",
+    "address": "Unit 9 Amir Building\n18ème rue & Tubman Blvd., Sinkor, Monrovia, Liberia",
+    "phone": "Téléphone",
+    "connectWithUs": "Connectez-vous avec Nous",
+    "email": "Email",
+    "emailValue": "justice.advocates.partners@gmail.com",
+    "quickLinks": "Accès Rapide",
+    "home": "Accueil",
+    "about": "À Propos",
+    "services": "Services",
+    "team": "Équipe",
+    "faq": "FAQ",
+    "insights": "Perspectives"
+  }
+}
