@@ -14,13 +14,14 @@ import LegalPagesForm from "@/components/admin/cms/LegalPagesForm";
 import ModalsForm from "@/components/admin/cms/ModalsForm";
 import HeadersForm from "@/components/admin/cms/HeadersForm";
 import NavbarForm from "@/components/admin/cms/NavbarForm";
+import RatesForm from "@/components/admin/cms/RatesForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function CMSSectionPage(props: { params: Promise<{ sectionKey: string }> }) {
     const params = await props.params;
     const { sectionKey } = params;
-    const validSections = ["navbar", "hero", "about", "services", "team", "testimonials", "stats", "faq", "insights", "footer", "settings", "legal", "modals", "headers"];
+    const validSections = ["navbar", "hero", "about", "services", "team", "testimonials", "stats", "faq", "insights", "footer", "settings", "legal", "modals", "headers", "rates"];
 
     if (!validSections.includes(sectionKey)) {
         notFound();
@@ -90,6 +91,7 @@ export default async function CMSSectionPage(props: { params: Promise<{ sectionK
                 {sectionKey === "legal" && <LegalPagesForm initialData={initialData} />}
                 {sectionKey === "modals" && <ModalsForm initialData={initialData} />}
                 {sectionKey === "headers" && <HeadersForm initialData={initialData} />}
+                {sectionKey === "rates" && <RatesForm initialData={initialData} />}
             </div>
         </div>
     );

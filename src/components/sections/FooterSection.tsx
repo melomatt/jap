@@ -58,7 +58,7 @@ export default function FooterSection({ footer, isClient, t, resolveStr }: Foote
                             {isClient ? t("footer.quickLinks", "Quick Links") : "Quick Links"}
                         </h4>
                         <ul className="space-y-2 text-gray-300 text-sm">
-                            {["hero", "about", "services", "team", "faq", "insights"].map((anchor) => (
+                            {["hero", "about", "services", "team", "rates", "faq", "insights"].map((anchor) => (
                                 <li key={anchor}>
                                     <a href={`#${anchor}`} className="hover:text-blue-300 capitalize">
                                         {isClient ? t(`footer.${anchor}`, anchor.charAt(0).toUpperCase() + anchor.slice(1)) : anchor.charAt(0).toUpperCase() + anchor.slice(1)}

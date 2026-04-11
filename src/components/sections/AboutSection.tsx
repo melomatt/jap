@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Target, Eye, Gem } from "lucide-react";
 
 interface AboutSectionProps {
     about: any;
@@ -27,9 +28,9 @@ export default function AboutSection({ about, resolveStr }: AboutSectionProps) {
 
                 <div className="grid md:grid-cols-3 gap-8">
                     {[
-                        { icon: "⚖️", titleKey: "about.mission", titleFallback: "Our Mission", descKey: "about.missionDesc", desc: about.missionDesc, title: about.mission, delay: 0 },
-                        { icon: "🎯", titleKey: "about.vision", titleFallback: "Our Vision", descKey: "about.visionDesc", desc: about.visionDesc, title: about.vision, delay: 0.2 },
-                        { icon: "🤝", titleKey: "about.values", titleFallback: "Our Values", descKey: "about.valuesDesc", desc: about.valuesDesc, title: about.values, delay: 0.4 },
+                        { icon: <Target className="w-8 h-8" strokeWidth={1.5} />, titleKey: "about.mission", titleFallback: "Our Mission", descKey: "about.missionDesc", desc: about.missionDesc, title: about.mission, delay: 0 },
+                        { icon: <Eye className="w-8 h-8" strokeWidth={1.5} />, titleKey: "about.vision", titleFallback: "Our Vision", descKey: "about.visionDesc", desc: about.visionDesc, title: about.vision, delay: 0.2 },
+                        { icon: <Gem className="w-8 h-8" strokeWidth={1.5} />, titleKey: "about.values", titleFallback: "Our Values", descKey: "about.valuesDesc", desc: about.valuesDesc, title: about.values, delay: 0.4 },
                     ].map((item, i) => (
                         <motion.div
                             key={i}
@@ -39,7 +40,9 @@ export default function AboutSection({ about, resolveStr }: AboutSectionProps) {
                             transition={{ duration: 0.8, delay: item.delay }}
                             viewport={{ once: true }}
                         >
-                            <div className="text-6xl mb-4">{item.icon}</div>
+                            <div className="flex items-center justify-center w-20 h-20 rounded-[1.5rem] bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 mx-auto mb-6 shadow-sm">
+                                {item.icon}
+                            </div>
                             <h3 className="text-xl font-semibold mb-2">
                                 {resolveStr(item.title, item.titleKey, item.titleFallback)}
                             </h3>

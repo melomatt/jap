@@ -10,6 +10,7 @@ import AboutSection from "@/components/sections/AboutSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import StatsSection from "@/components/sections/StatsSection";
 import Team from "@/components/Team";
+import RatesSection from "@/components/sections/RatesSection";
 import FAQSection from "@/components/sections/FAQSection";
 import InsightsSection from "@/components/sections/InsightsSection";
 import FooterSection from "@/components/sections/FooterSection";
@@ -108,6 +109,8 @@ export default function HomeClient({ cmsData }: { cmsData: any }) {
                 title={cmsData.teamHeader?.title}
                 subtitle={cmsData.teamHeader?.subtitle}
             />
+
+            <RatesSection rates={cmsData.rates} resolveStr={resolve} />
 
             <FAQSection faqData={faqData} cmsData={cmsData} resolveStr={resolve} />
 

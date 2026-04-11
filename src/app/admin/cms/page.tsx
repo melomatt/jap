@@ -16,7 +16,8 @@ import {
   ArrowRight,
   MonitorPlay,
   Scale,
-  LineChart
+  LineChart,
+  DollarSign
 } from "lucide-react"
 
 export default function CMSDashboard() {
@@ -30,6 +31,7 @@ export default function CMSDashboard() {
     { id: "insights", title: "Insights & News", description: "Publish fresh news, legal trends, and company-related articles.", icon: <LineChart className="h-6 w-6 text-teal-500" />, href: "/admin/cms/insights" },
     { id: "settings", title: "Global Settings", description: "Manage branding, metadata, and core authentication-related text.", icon: <Settings className="h-6 w-6 text-gray-500" />, href: "/admin/cms/settings" },
     { id: "navbar", title: "Navigation", description: "Edit the main navigation links, phone contact, and global CTA.", icon: <Globe className="h-6 w-6 text-cyan-500" />, href: "/admin/cms/navbar" },
+    { id: "rates", title: "Service Rates", description: "Manage hourly legal fees for partners, associates, and counsel.", icon: <DollarSign className="h-6 w-6 text-orange-500" />, href: "/admin/cms/rates" },
   ]
 
   const container = {

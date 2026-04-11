@@ -50,6 +50,17 @@ const ModalsSchema = z.object({
   quoteSubtitle: z.string().optional(),
 })
 
+const RatesSchema = z.object({
+  sectionTitle: z.string().optional(),
+  subtitle: z.string().optional(),
+  currency: z.string().optional(),
+  rows: z.array(z.object({
+    no: z.string(),
+    description: z.string(),
+    feePerHour: z.string()
+  })).optional()
+})
+
 const SectionSchemas: Record<string, z.ZodTypeAny> = {
   hero: HeroSchema,
   about: AboutSchema,
@@ -57,6 +68,7 @@ const SectionSchemas: Record<string, z.ZodTypeAny> = {
   team: z.array(z.any()).optional(),
   navbar: NavbarSchema,
   modals: ModalsSchema,
+  rates: RatesSchema,
 }
 
 // --- End Schemas ---

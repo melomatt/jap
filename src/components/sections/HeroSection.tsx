@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { AnimatedTypingText } from "@/lib/home-utils";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 interface HeroSectionProps {
     hero: any;
@@ -14,32 +15,18 @@ export default function HeroSection({ hero, resolveStr, onGetQuote }: HeroSectio
     const [currentSlide, setCurrentSlide] = useState(0);
     const containerRef = useRef<HTMLElement>(null);
 
-    // Mouse Tilt
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const springConfig = { damping: 25, stiffness: 150 };
-    const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), springConfig);
-    const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), springConfig);
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-        mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-    };
-    const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
-
-    // Scroll parallax
+    // Scroll-based parallax fade
     const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
-    const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-    const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+    const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-    // Slideshow
+    // Slideshow auto-advance
     const backgroundImages = hero.backgroundImages || [hero.backgroundImage || hero.imageUrl || "/hero_image.png"];
     useEffect(() => {
         if (backgroundImages.length <= 1) return;
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % backgroundImages.length);
-        }, 8000);
+        }, 7000);
         return () => clearInterval(interval);
     }, [backgroundImages.length]);
 
@@ -47,88 +34,124 @@ export default function HeroSection({ hero, resolveStr, onGetQuote }: HeroSectio
         <section
             ref={containerRef}
             id="hero"
-            className="relative h-[100svh] w-full flex items-center justify-center overflow-hidden bg-black"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
+            className="relative h-[100svh] w-full overflow-hidden bg-black"
         >
-            {/* Cinematic Ken Burns Background */}
-            <motion.div style={{ y: bgY, opacity: heroOpacity }} className="absolute inset-0 z-0 bg-black">
-                <AnimatePresence>
+            {/* ── Full-bleed Background Slideshow ── */}
+            <motion.div style={{ y: bgY }} className="absolute inset-0 z-0">
+                <AnimatePresence mode="sync">
                     <motion.div
                         key={currentSlide}
-                        initial={{ opacity: 0, scale: 1.1 }}
+                        initial={{ opacity: 0, scale: 1.06 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ opacity: { duration: 2 }, scale: { duration: 10, ease: "linear" } }}
-                        className="absolute inset-0 bg-cover bg-center will-change-transform"
+                        transition={{
+                            opacity: { duration: 1.8, ease: "easeInOut" },
+                            scale:   { duration: 12, ease: "linear" },
+                        }}
+                        className="absolute inset-0 bg-cover bg-top will-change-transform"
                         style={{ backgroundImage: `url(${backgroundImages[currentSlide] || "/hero_image.png"})` }}
                     />
                 </AnimatePresence>
 
-                {/* Overlays */}
-                <div className="absolute inset-0 bg-black/10" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.5)_120%)]" />
-                <div className="absolute inset-y-0 left-0 w-full md:w-3/4 lg:w-3/5 bg-gradient-to-r from-black/80 via-black/40 to-transparent pointer-events-none" />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent opacity-90 pointer-events-none" />
-                <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
+                {/* Minimal overlays — only darken the very bottom so faces stay fully visible */}
+                {/* Subtle overall tone */}
+                <div className="absolute inset-0 bg-black/20" />
+                {/* Strong BOTTOM gradient for text legibility */}
+                <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                {/* Narrow TOP bar for navbar contrast */}
+                <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
             </motion.div>
 
-            {/* Cinematic Text Overlay */}
-            <div className="relative z-10 w-full h-full max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-20 flex flex-col justify-end md:justify-center items-start pb-32 md:pb-0">
+            {/* ── Text Content — anchored to bottom-left (Apple TV+ / Netflix style) ── */}
+            <motion.div
+                style={{ opacity: heroOpacity }}
+                className="relative z-10 h-full flex flex-col justify-end px-6 sm:px-10 lg:px-20 pb-24 sm:pb-28"
+            >
+                {/* Badge */}
                 <motion.div
-                    style={{ rotateX, rotateY, perspective: 1000 }}
-                    className="w-full max-w-3xl xl:max-w-4xl text-left text-white"
-                    initial={{ opacity: 0, y: 40 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="mb-4 inline-flex items-center gap-2 w-fit"
                 >
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 1 }}>
-                        <AnimatedTypingText
-                            isHeading
-                            text={resolveStr(hero.title, "hero.title", "EXPERT ADVISORY")}
-                            delay={0.4}
-                            className="text-[40px] sm:text-6xl md:text-[80px] lg:text-[85px] xl:text-[96px] font-bold mb-6 leading-[1.05] tracking-tight drop-shadow-[0_0_40px_rgba(0,0,0,0.8)]"
-                        />
-                        <AnimatedTypingText
-                            text={resolveStr(hero.subtitle, "hero.subtitle", "WE ARE BRINGING SOLUTIONS BY PROVIDING SUPPORT FOR LEGAL SYSTEM.")}
-                            delay={1.4}
-                            className="text-xl md:text-2xl lg:text-3xl mb-12 text-white/90 font-medium max-w-2xl leading-relaxed drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]"
-                        />
-
-                        <div className="flex flex-col sm:flex-row justify-start gap-5 sm:gap-6 mt-8">
-                            <button
-                                className="px-10 py-4 sm:py-5 bg-white text-black hover:bg-gray-100 rounded-full font-bold text-[17px] shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all active:scale-95 group flex items-center justify-center gap-3"
-                                onClick={onGetQuote}
-                            >
-                                {resolveStr(hero.buttonText, "hero.cta", "Get a Quote")}
-                                <span className="group-hover:translate-x-1 transition-transform">{"→"}</span>
-                            </button>
-                            <button
-                                className="px-10 py-4 sm:py-5 bg-black/40 hover:bg-black/60 text-white border border-white/20 rounded-full font-bold text-[17px] backdrop-blur-2xl transition-all hover:border-white/40 active:scale-95"
-                                onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}
-                            >
-                                Explore Services
-                            </button>
-                        </div>
-                    </motion.div>
+                    <span className="h-px w-8 bg-blue-400" />
+                    <span className="text-blue-300 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase">
+                        Legal Excellence Since 2020
+                    </span>
                 </motion.div>
-            </div>
 
-            {/* Slide Progress Indicators */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-                {backgroundImages.map((_: any, i: number) => (
+                {/* Title */}
+                <AnimatedTypingText
+                    isHeading
+                    text={resolveStr(hero.title, "hero.title", "Justice Advocates & Partners")}
+                    delay={0.4}
+                    className="text-[36px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] font-bold leading-[1.05] tracking-tight text-white drop-shadow-[0_2px_30px_rgba(0,0,0,0.9)] max-w-3xl"
+                />
+
+                {/* Subtitle */}
+                <AnimatedTypingText
+                    text={resolveStr(hero.subtitle, "hero.subtitle", "Integrity in Practice. Excellence across Industries.")}
+                    delay={1.2}
+                    className="mt-4 text-base sm:text-lg md:text-xl text-white/80 font-medium max-w-xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
+                />
+
+                {/* CTA buttons */}
+                <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.9, delay: 2.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="mt-8 flex flex-row flex-wrap gap-3 sm:gap-4"
+                >
                     <button
-                        key={i}
-                        onClick={() => setCurrentSlide(i)}
-                        className="group relative h-1.5 w-12 rounded-full bg-white/20 transition-all"
+                        onClick={onGetQuote}
+                        className="group inline-flex items-center gap-2.5 px-7 py-3.5 sm:px-8 sm:py-4 bg-white text-black rounded-full font-bold text-sm sm:text-base shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.35)] hover:bg-gray-100 active:scale-95 transition-all duration-300"
                     >
-                        {currentSlide === i && (
-                            <motion.div layoutId="progress" className="absolute inset-0 bg-white rounded-full" transition={{ duration: 0.5 }} />
-                        )}
-                        <div className="absolute -inset-4 cursor-pointer" />
+                        {resolveStr(hero.buttonText, "hero.cta", "Get a Quote")}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
-                ))}
-            </div>
+                    <button
+                        onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}
+                        className="inline-flex items-center gap-2.5 px-7 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 text-white rounded-full font-semibold text-sm sm:text-base border border-white/20 hover:border-white/40 backdrop-blur-xl active:scale-95 transition-all duration-300"
+                    >
+                        Explore Services
+                        <ChevronDown className="w-4 h-4" />
+                    </button>
+                </motion.div>
+            </motion.div>
+
+            {/* ── Slide indicators — bottom-right corner ── */}
+            {backgroundImages.length > 1 && (
+                <div className="absolute bottom-8 right-6 sm:right-10 z-20 flex items-center gap-2">
+                    {backgroundImages.map((_: any, i: number) => (
+                        <button
+                            key={i}
+                            onClick={() => setCurrentSlide(i)}
+                            aria-label={`Go to slide ${i + 1}`}
+                            className="relative h-[3px] rounded-full bg-white/25 transition-all duration-500 focus:outline-none"
+                            style={{ width: currentSlide === i ? "2rem" : "0.625rem" }}
+                        >
+                            {currentSlide === i && (
+                                <motion.div
+                                    layoutId="pill"
+                                    className="absolute inset-0 bg-white rounded-full"
+                                    transition={{ duration: 0.4 }}
+                                />
+                            )}
+                            {/* Extended tap target for mobile */}
+                            <div className="absolute -inset-3" />
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* ── Scroll cue arrow ── */}
+            <motion.div
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-white/40"
+                animate={{ y: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+            >
+                <ChevronDown className="w-6 h-6" />
+            </motion.div>
         </section>
     );
 }

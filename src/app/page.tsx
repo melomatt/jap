@@ -25,6 +25,7 @@ export default async function Homepage() {
     "statsHeader",
     "faqHeader",
     "insightsHeader",
+    "rates",
   ];
 
   const { data: cmsData } = await getBatchSiteContent(sections);
