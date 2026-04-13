@@ -6,7 +6,10 @@ export async function createClient() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
-    console.warn("Supabase credentials missing. Check environment variables.");
+    console.error("❌ Supabase Server Credentials Missing:", { 
+        url: url ? "Present" : "MISSING", 
+        key: key ? "Present" : "MISSING" 
+    });
     // Return a dummy client-like object that returns empty data/error instead of crashing
     return {
       from: () => ({

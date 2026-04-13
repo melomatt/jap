@@ -18,7 +18,7 @@ export default function FooterSection({ footer, isClient, t, resolveStr }: Foote
                     <div>
                         <img src="/jap_logo.png" alt="Justice Advocates & Partners, Inc." className="h-16 mb-4" />
                         <p className="text-gray-300 text-sm leading-relaxed">
-                            {resolveStr(footer.description, "footer.description", "WE ARE BRINGING SOLUTIONS BY PROVIDING SUPPORT FOR LEGAL SYSTEM.")}
+                            {resolveStr(footer.description, "footer.description", "Integrity in Practice. Excellence across Industries.")}
                         </p>
                     </div>
 

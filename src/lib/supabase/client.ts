@@ -5,7 +5,12 @@ export function createClient() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
-    console.warn("Browser Supabase credentials missing.");
+    if (typeof window !== "undefined") {
+      console.error("❌ Supabase Browser Credentials Missing:", { 
+        url: url ? "Present" : "MISSING", 
+        key: key ? "Present" : "MISSING" 
+      });
+    }
     return {
       from: () => ({
         select: () => ({
