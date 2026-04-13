@@ -32,6 +32,8 @@ export default function CMSDashboard() {
     { id: "settings", title: "Global Settings", description: "Manage branding, metadata, and core authentication-related text.", icon: <Settings className="h-6 w-6 text-gray-500" />, href: "/admin/cms/settings" },
     { id: "navbar", title: "Navigation", description: "Edit the main navigation links, phone contact, and global CTA.", icon: <Globe className="h-6 w-6 text-cyan-500" />, href: "/admin/cms/navbar" },
     { id: "rates", title: "Service Rates", description: "Manage hourly legal fees for partners, associates, and counsel.", icon: <DollarSign className="h-6 w-6 text-orange-500" />, href: "/admin/cms/rates" },
+    { id: "headers", title: "Section Headers", description: "Edit the main titles and tags displayed at the top of each homepage section.", icon: <Layers className="h-6 w-6 text-blue-400" />, href: "/admin/cms/headers" },
+    { id: "footer", title: "Footer Details", description: "Manage contact info, office address, phone numbers, and company footer text.", icon: <MessageSquare className="h-6 w-6 text-slate-500" />, href: "/admin/cms/footer" },
   ]
 
   const container = {
