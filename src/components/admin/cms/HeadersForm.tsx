@@ -49,7 +49,7 @@ export default function HeadersForm({ initialData }: { initialData: any }) {
         defaultValues: {
             services: initialData?.servicesHeader || {
                 tag: "Legal Service",
-                title: "WE ARE BRINGING SOLUTIONS BY PROVIDING SUPPORT FOR LEGAL SYSTEM.",
+                title: "Integrity in Practice. Excellence across Industries.",
                 subtitle: "Justice Advocates & Partners, Inc. delivers strategic legal counsel with integrity and results-driven advocacy across diverse legal domains.",
             },
             team: initialData?.teamHeader || {

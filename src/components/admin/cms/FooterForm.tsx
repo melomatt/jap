@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 export default function FooterForm({ initialData }: { initialData: any }) {
     const [isSaving, setIsSaving] = useState(false);
     const [formData, setFormData] = useState({
-        description: initialData?.description || "WE ARE BRINGING SOLUTIONS BY PROVIDING SUPPORT FOR LEGAL SYSTEM.",
+        description: initialData?.description || "Integrity in Practice. Excellence across Industries.",
         addressLine1: initialData?.addressLine1 || "Unit 9 Amir Building",
         addressLine2: initialData?.addressLine2 || "18th Street & Tubman Blvd., Sinkor, Monrovia, Liberia",
         phoneLines: initialData?.phoneLines || "Clir. G. Moses Paegar: +231 777 511 760\nClir. Albert S. Sims: +231 777 556 038\nClir. Neto Zorzor Lighe, Sr.: +231 886 556 399\nAttorney Nyekeh Y. Forkpah: +231 880 690 750\nAdministrator Sando C.J. Wilson: +231 886 660 469",

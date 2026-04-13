@@ -30,7 +30,7 @@ export default function ServicesSection({ cmsData, servicesData, isClient, t, re
                             {resolveStr(cmsData.servicesHeader?.tag || cmsData.services?.tag, "services.tag", "Legal Service")}
                         </p>
                         <h2 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white px-2">
-                            {resolveStr(cmsData.servicesHeader?.title || cmsData.services?.title, "services.title", "WE ARE BRINGING SOLUTIONS BY PROVIDING SUPPORT FOR LEGAL SYSTEM.")}
+                            {resolveStr(cmsData.servicesHeader?.title || cmsData.services?.title, "services.title", "Integrity in Practice. Excellence across Industries.")}
                         </h2>
                         <p className="mt-4 text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-2">
                             {resolveStr(cmsData.servicesHeader?.subtitle || cmsData.services?.subtitle, "services.subtitle", "Justice Advocates & Partners, Inc. delivers strategic legal counsel with integrity and results-driven advocacy across diverse legal domains.")}

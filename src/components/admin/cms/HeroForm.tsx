@@ -125,7 +125,7 @@ export default function HeroForm({ initialData }: { initialData: any }) {
                         {...form.register("subtitle")}
                         rows={3}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="WE ARE BRINGING SOLUTIONS BY PROVIDING SUPPORT FOR LEGAL SYSTEM."
+                        placeholder="Integrity in Practice. Excellence across Industries."
                     />
                     {form.formState.errors.subtitle && (
                         <p className="text-red-500 text-sm mt-1">{form.formState.errors.subtitle.message}</p>
