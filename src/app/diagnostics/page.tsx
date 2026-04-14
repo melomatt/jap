@@ -11,14 +11,18 @@ export default async function DiagnosticsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                 process.env.NEXT_PUBLIC_SUPABASE_KEY || 
+                 process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+                 process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
   const diagnostics = {
-    NEXT_PUBLIC_SUPABASE_URL: url ? "DEFINED (starts with " + url.substring(0, 10) + "...)" : "MISSING",
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: key ? "DEFINED (length: " + key.length + ")" : "MISSING",
-    SUPABASE_SERVICE_ROLE_KEY: serviceKey ? "DEFINED (length: " + serviceKey.length + ")" : "MISSING",
+    SUPABASE_URL: url ? "DEFINED (starts with " + url.substring(0, 10) + "...)" : "MISSING",
+    SUPABASE_ANON_KEY: anonKey ? "DEFINED (length: " + anonKey.length + ")" : "MISSING",
+    SUPABASE_SERVICE_KEY: serviceKey ? "DEFINED (length: " + serviceKey.length + ")" : "MISSING",
+    DETAILED_URL_SOURCE: process.env.NEXT_PUBLIC_SUPABASE_URL ? "NEXT_PUBLIC_SUPABASE_URL" : "SUPABASE_URL",
   };
 
   return (
