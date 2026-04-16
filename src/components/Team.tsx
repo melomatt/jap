@@ -1,7 +1,5 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, useEffect } from "react";
 
 interface TeamMember {
   name: string;
@@ -90,20 +88,20 @@ export default function Team({ initialMembers, title, subtitle }: { initialMembe
   return (
     <motion.section
       id="team"
-      className="py-20 bg-gray-50 dark:bg-gray-900 scroll-mt-24"
+      className="py-24 md:py-32 bg-[#F5F5F7] dark:bg-[#000000] scroll-mt-24"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 1 }}
       viewport={{ once: true }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white uppercase">
-            {title || "MEET THE ADVISORS"}
-          </h2>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div className="text-center mb-20">
+          <span className="text-[10px] sm:text-xs font-bold tracking-[0.4em] text-blue-600 dark:text-blue-400 uppercase">
             {subtitle || "Our team of experienced legal professionals"}
-          </p>
+          </span>
+          <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight">
+            {title || "Meet the Advisors"}
+          </h2>
         </div>
 
         {/* Team Members */}
@@ -123,107 +121,115 @@ interface TeamMemberCardProps {
 }
 
 function TeamMemberCard({ member, index }: TeamMemberCardProps) {
-  const containerRef = useRef(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Spotlight effect motion values
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Smooth springs for the spotlight
+  const spotlightX = useSpring(mouseX, { stiffness: 150, damping: 20 });
+  const spotlightY = useSpring(mouseY, { stiffness: 150, damping: 20 });
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
 
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: index * 0.1,
-      },
-    },
-  };
-
-  const contentVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.6 },
-    },
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0, x: 50, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      transition: { duration: 0.6, delay: 0.2 },
+      y: 0,
+      transition: { duration: 0.8, ease: [0.21, 1.02, 0.73, 1] as any },
     },
   };
 
   return (
     <motion.div
-      ref={containerRef}
-      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition"
+      ref={cardRef}
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: "-50px" }}
+      onMouseMove={handleMouseMove}
+      whileHover={{ y: -8, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="group relative bg-white dark:bg-[#1C1C1E] rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-white/5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_100px_-30px_rgba(0,0,0,0.15)] transition-shadow duration-700"
     >
-      <div className="grid md:grid-cols-2 gap-0">
-        {/* Content Section - Left */}
-        <motion.div
-          className="p-8 md:p-12 flex flex-col justify-center"
-          variants={contentVariants}
-        >
-          <div className="mb-6">
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {member.name}
-            </h3>
-            <p className="text-xl text-blue-600 dark:text-blue-300 font-semibold mb-2">
-              {member.title}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {member.credentials}
-            </p>
-          </div>
+      {/* Interactive Spotlight Overlay */}
+      <motion.div
+        className="pointer-events-none absolute -inset-px rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-30"
+        style={{
+          background: useTransform(
+            [spotlightX, spotlightY],
+            ([x, y]) => `radial-gradient(600px circle at ${x}px ${y}px, rgba(59, 130, 246, 0.08), transparent 40%)`
+          ),
+        }}
+      />
 
-          <p className="text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-            {member.bio}
-          </p>
-
-          {/* Education */}
-          <div>
-            <h4 className="font-bold text-gray-900 dark:text-white mb-3">Education</h4>
-            <ul className="space-y-2">
-              {member.education.map((edu, idx) => (
-                <li key={idx} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
-                  <span className="text-blue-600 mr-3 mt-0.5 flex-shrink-0">✓</span>
-                  <span>{edu}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </motion.div>
-
-        {/* Image Section - Right */}
-        <motion.div
-          className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 h-[28rem] md:h-full min-h-[28rem]"
-          variants={imageVariants}
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.3 }}
-        >
+      <div className="flex flex-col md:flex-row min-h-[34rem]">
+        {/* Image Section - Leads on mobile */}
+        <div className="relative w-full md:w-[42%] h-[24rem] md:h-auto overflow-hidden bg-[#F5F5F7] dark:bg-gray-800">
           {member.image ? (
             <motion.img
               src={member.image}
               alt={member.name}
-              className="w-full h-full object-cover object-top"
-              whileHover={{ scale: 1.15 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="w-full h-full object-cover object-[center_20%] grayscale-[0.3] group-hover:grayscale-0 transition-all duration-1000"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 1.5 }}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="text-8xl mb-4">⚖️</div>
-                <p className="text-2xl font-semibold">{member.name.split(' ')[0]}</p>
-              </div>
+            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+               <div className="text-6xl opacity-20">⚖️</div>
             </div>
           )}
-        </motion.div>
+          {/* Subtle mobile shade */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none md:hidden" />
+        </div>
+
+        {/* Content Section */}
+        <div className="flex-1 p-8 sm:p-10 md:p-14 lg:p-16 flex flex-col justify-center z-10">
+          <div className="mb-10">
+            <div className="flex flex-col gap-1.5 mb-5">
+              <span className="text-[10px] sm:text-xs font-bold tracking-[0.35em] text-blue-600 dark:text-blue-400 uppercase">
+                {member.title}
+              </span>
+              <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                {member.name}
+              </h3>
+            </div>
+            
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 dark:bg-white/5 rounded-full">
+              <div className="w-1 h-1 rounded-full bg-blue-500" />
+              <p className="text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                {member.credentials}
+              </p>
+            </div>
+          </div>
+
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed font-normal max-w-2xl">
+            {member.bio}
+          </p>
+
+          {/* Education - Apple-style List with Icons */}
+          <div className="pt-10 border-t border-gray-100 dark:border-white/5">
+            <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-6 opacity-60">
+              Education & Professional Background
+            </h4>
+            <div className="grid gap-4">
+              {member.education.map((edu, idx) => (
+                <div key={idx} className="flex items-start gap-4">
+                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-snug font-medium">
+                    {edu}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
