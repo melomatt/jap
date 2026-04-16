@@ -198,6 +198,7 @@ export default function BookAppointment({ onClose, cmsData }: BookAppointmentPro
               <option value="business-establishment">Business Vehicle Establishment</option>
               <option value="consultancy">Legal Consultancy and Administrative Representation</option>
               <option value="contracts">Drafting and Review of Contracts</option>
+              <option value="other">Other</option>
             </select>
           </div>
 
