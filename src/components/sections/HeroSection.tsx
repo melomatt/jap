@@ -34,87 +34,89 @@ export default function HeroSection({ hero, resolveStr, onGetQuote }: HeroSectio
         <section
             ref={containerRef}
             id="hero"
-            className="relative h-[100svh] w-full overflow-hidden bg-black"
+            className="relative h-[100dvh] w-full overflow-hidden bg-black"
         >
             {/* ── Full-bleed Background Slideshow ── */}
             <motion.div style={{ y: bgY }} className="absolute inset-0 z-0">
                 <AnimatePresence mode="sync">
                     <motion.div
                         key={currentSlide}
-                        initial={{ opacity: 0, scale: 1.06 }}
+                        initial={{ opacity: 0, scale: 1.03 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{
-                            opacity: { duration: 1.8, ease: "easeInOut" },
-                            scale:   { duration: 12, ease: "linear" },
+                            opacity: { duration: 1.4, ease: "easeInOut" },
+                            scale:   { duration: 10, ease: "linear" },
                         }}
-                        className="absolute inset-0 bg-cover bg-top will-change-transform"
+                        className="absolute inset-0 bg-cover bg-center md:bg-top will-change-transform"
                         style={{ backgroundImage: `url(${backgroundImages[currentSlide] || "/hero_image.png"})` }}
                     />
                 </AnimatePresence>
 
-                {/* Minimal overlays — only darken the very bottom so faces stay fully visible */}
-                {/* Subtle overall tone */}
-                <div className="absolute inset-0 bg-black/20" />
-                {/* Strong BOTTOM gradient for text legibility */}
-                <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-                {/* Narrow TOP bar for navbar contrast */}
-                <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
+                {/* Refined Overlays — Premium App Aesthetic */}
+                {/* Global tint for depth */}
+                <div className="absolute inset-0 bg-black/30 md:bg-black/20 transition-colors duration-700" />
+                
+                {/* Advanced Gradient Overlay — Optimized for mobile text wrapping */}
+                <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/95 via-black/40 to-transparent md:h-[70%] pointer-events-none" />
+                
+                {/* Safe Area Top Gradient */}
+                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
             </motion.div>
 
-            {/* ── Text Content — anchored to bottom-left (Apple TV+ / Netflix style) ── */}
+            {/* ── Text Content — Anchored with Mobile Safe Areas ── */}
             <motion.div
                 style={{ opacity: heroOpacity }}
-                className="relative z-10 h-full flex flex-col justify-end px-6 sm:px-10 lg:px-20 pb-24 sm:pb-28"
+                className="relative z-10 h-full flex flex-col justify-end px-6 sm:px-10 lg:px-20 pb-32 sm:pb-28"
             >
                 {/* Badge */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="mb-4 inline-flex items-center gap-2 w-fit"
+                    className="mb-5 inline-flex items-center gap-3 w-fit"
                 >
-                    <span className="h-px w-8 bg-blue-400" />
-                    <span className="text-blue-300 text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase">
+                    <span className="h-[2px] w-6 sm:w-10 bg-blue-500" />
+                    <span className="text-blue-400 text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">
                         Legal Excellence Since 2020
                     </span>
                 </motion.div>
 
-                {/* Title */}
+                {/* Title — Fluid Responsive Scale */}
                 <AnimatedTypingText
                     isHeading
                     text={resolveStr(hero.title, "hero.title", "Justice Advocates & Partners")}
                     delay={0.4}
-                    className="text-[36px] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] font-bold leading-[1.05] tracking-tight text-white drop-shadow-[0_2px_30px_rgba(0,0,0,0.9)] max-w-3xl"
+                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)] max-w-4xl"
                 />
 
-                {/* Subtitle */}
+                {/* Subtitle — Optimized for Mobile Readability */}
                 <AnimatedTypingText
                     text={resolveStr(hero.subtitle, "hero.subtitle", "Integrity in Practice. Excellence across Industries.")}
                     delay={1.2}
-                    className="mt-4 text-base sm:text-lg md:text-xl text-white/80 font-medium max-w-xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
+                    className="mt-5 text-base sm:text-lg md:text-xl xl:text-2xl text-white/90 font-medium max-w-2xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]"
                 />
 
-                {/* CTA buttons */}
+                {/* CTA buttons — App-like Touch Targets */}
                 <motion.div
-                    initial={{ opacity: 0, y: 24 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 2.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="mt-8 flex flex-row flex-wrap gap-3 sm:gap-4"
+                    transition={{ duration: 0.8, delay: 2.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="mt-10 flex flex-col sm:flex-row gap-4 sm:gap-5"
                 >
                     <button
                         onClick={onGetQuote}
-                        className="group inline-flex items-center gap-2.5 px-7 py-3.5 sm:px-8 sm:py-4 bg-white text-black rounded-full font-bold text-sm sm:text-base shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.35)] hover:bg-gray-100 active:scale-95 transition-all duration-300"
+                        className="group relative overflow-hidden inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold text-base shadow-[0_10px_40px_rgba(255,255,255,0.15)] hover:shadow-[0_15px_50px_rgba(255,255,255,0.25)] hover:scale-[1.02] transition-all duration-500"
                     >
                         {resolveStr(hero.buttonText, "hero.cta", "Get a Quote")}
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                     <button
                         onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}
-                        className="inline-flex items-center gap-2.5 px-7 py-3.5 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 text-white rounded-full font-semibold text-sm sm:text-base border border-white/20 hover:border-white/40 backdrop-blur-xl active:scale-95 transition-all duration-300"
+                        className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-white/15 text-white rounded-full font-semibold text-base border border-white/20 hover:border-white/40 backdrop-blur-3xl hover:scale-[1.02] transition-all duration-500"
                     >
                         Explore Services
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="w-5 h-5" />
                     </button>
                 </motion.div>
             </motion.div>
