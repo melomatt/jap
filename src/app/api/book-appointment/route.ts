@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createElement } from "react";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { rateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit"; // Import the updated async helper
 
 const bookingSchema = z.object({
   name: z.string().min(1),
@@ -15,9 +14,11 @@ const bookingSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting — max 5 requests per IP per 5 minutes
+    // 1. Retrieve the client IP address
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
-    const { allowed, resetAt } = rateLimit(ip, { maxRequests: 5, windowMs: 5 * 60 * 1000 });
+
+    // 2. Perform the serverless-compatible rate limit check
+    const { allowed, resetAt } = await checkRateLimit(ip);
     if (!allowed) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
@@ -34,17 +35,17 @@ export async function POST(req: NextRequest) {
     // Save evaluation booking to database securely using Admin role
     const adminSupabase = createAdminClient();
     const { error: dbError } = await adminSupabase.from("evaluations").insert({
-        name: parsed.name,
-        email: parsed.email,
-        phone: parsed.phone,
-        date: parsed.date,
-        matter: parsed.matter,
-        message: parsed.message || "",
-        status: "pending"
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone,
+      date: parsed.date,
+      matter: parsed.matter,
+      message: parsed.message || "",
+      status: "pending"
     });
 
     if (dbError) {
-        console.error("Failed to insert evaluation into database:", dbError);
+      console.error("Failed to insert evaluation into database:", dbError);
     }
 
     return NextResponse.json({ success: true });

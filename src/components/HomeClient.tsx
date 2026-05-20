@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "@/hooks/use-translations";
 import { resolveStr, resolveArray } from "@/lib/home-utils";
 
+import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/sections/HeroSection";
 import ServicesSection from "@/components/sections/ServicesSection";
 import AboutSection from "@/components/sections/AboutSection";
@@ -80,6 +81,7 @@ export default function HomeClient({ cmsData }: { cmsData: any }) {
 
     return (
         <div className="overflow-x-hidden">
+            <Navbar cmsData={cmsData.navbar || {}} />
             <HeroSection
                 hero={cmsData.hero || {}}
                 resolveStr={resolve}

@@ -1,37 +1,40 @@
 /**
- * Simple in-memory IP-based rate limiter.
- * Limits a given IP to `maxRequests` within a rolling `windowMs` window.
- * Note: On Vercel/serverless, memory is not shared between instances, so this is
- * a best-effort defense. For production, replace with an Upstash Redis rate limiter.
+ * Serverless-compatible IP-based rate limiter using Upstash Redis.
+ * Ensures rate limits are accurately shared across all serverless function instances.
  */
 
-type RateLimitRecord = {
-  count: number;
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+// 1. Initialize Upstash Redis client using the environment variables you added
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+// 2. Configure a sliding window limiter: Max 5 requests / 5 minutes per IP
+const ratelimit = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.slidingWindow(5, "5 m"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/jap-main",
+});
+
+export async function checkRateLimit(ip: string): Promise<{
+  allowed: boolean;
+  remaining: number;
   resetAt: number;
-};
-
-const store = new Map<string, RateLimitRecord>();
-
-export function rateLimit(
-  ip: string,
-  options: { maxRequests?: number; windowMs?: number } = {}
-): { allowed: boolean; remaining: number; resetAt: number } {
-  const { maxRequests = 5, windowMs = 5 * 60 * 1000 } = options; // 5 requests / 5 minutes
-  const now = Date.now();
-
-  const record = store.get(ip);
-
-  if (!record || now > record.resetAt) {
-    // New window — reset
-    store.set(ip, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, remaining: maxRequests - 1, resetAt: now + windowMs };
+}> {
+  try {
+    const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+    return {
+      allowed: success,
+      remaining,
+      resetAt: reset,
+    };
+  } catch (err) {
+    console.error("Upstash Redis connection failed, falling back to permissive mode:", err);
+    // Safe fallback: allow requests if Redis is down
+    return { allowed: true, remaining: 1, resetAt: Date.now() + 5000 };
   }
-
-  if (record.count >= maxRequests) {
-    return { allowed: false, remaining: 0, resetAt: record.resetAt };
-  }
-
-  record.count += 1;
-  store.set(ip, record);
-  return { allowed: true, remaining: maxRequests - record.count, resetAt: record.resetAt };
 }

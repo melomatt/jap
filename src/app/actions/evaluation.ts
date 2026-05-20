@@ -1,31 +1,12 @@
 "use server"
 
 import { createAdminClient } from "@/lib/supabase/admin"
-import { createClient } from "@/lib/supabase/server"
+import { verifyUserRole } from "@/lib/supabase/server" // Centralized auth helper
 import { revalidatePath } from "next/cache"
-
-// Utility to verify if user is authenticated admin
-async function verifyAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error("Unauthorized")
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, status")
-    .eq("id", user.id)
-    .single()
-
-  if (!profile || profile.status?.toLowerCase() !== "active" || (profile.role !== "admin" && profile.role !== "super_admin")) {
-    throw new Error("Unauthorized: Account is inactive or lacks admin privileges.")
-  }
-
-  return { user, profile }
-}
 
 export async function getAllEvaluations() {
   try {
-    await verifyAdmin()
+    await verifyUserRole(["admin", "super_admin"]);
     const adminSupabase = createAdminClient()
 
     const { data: evaluations, error } = await adminSupabase
@@ -43,7 +24,7 @@ export async function getAllEvaluations() {
 
 export async function deleteEvaluation(id: string) {
   try {
-    await verifyAdmin()
+    await verifyUserRole(["admin", "super_admin"]);
     const adminSupabase = createAdminClient()
 
     const { error } = await adminSupabase
@@ -62,7 +43,7 @@ export async function deleteEvaluation(id: string) {
 
 export async function markEvaluationAsReplied(id: string) {
   try {
-    await verifyAdmin()
+    await verifyUserRole(["admin", "super_admin"]);
     const adminSupabase = createAdminClient()
 
     const { error } = await adminSupabase

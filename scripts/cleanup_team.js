@@ -4,7 +4,7 @@ const path = require('path');
 
 // Manually load .env.local from the root directory
 try {
-    const rootDir = "c:\\Users\\User\\Downloads\\jap\\jap-main";
+    const rootDir = path.join(__dirname, "..");
     const envPath = path.join(rootDir, ".env.local");
     console.log("Loading env from:", envPath);
     const envContent = fs.readFileSync(envPath, 'utf8');

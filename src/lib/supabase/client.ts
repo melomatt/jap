@@ -9,7 +9,7 @@ export function createClient() {
 
   if (!url || !key) {
     if (typeof window !== "undefined") {
-      console.error("❌ Supabase Browser Credentials Missing:", { 
+      console.warn("⚠️ Supabase Browser Credentials Missing:", { 
         url: url ? "Present" : "MISSING", 
         key: key ? "Present" : "MISSING" 
       });

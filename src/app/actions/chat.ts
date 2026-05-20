@@ -2,14 +2,12 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-
+import { verifyUserRole } from "@/lib/supabase/server"; // Import centralized auth helper
 import { getSandoResponse } from "@/lib/bot-brain";
 
 // Check if currently within business hours in Liberia (Africa/Monrovia - GMT)
-// Monday to Saturday (Sat half-day)
 function isBusinessHoursLiberia(): boolean {
     const now = new Date();
-    // Convert current time to Monrovia timezone
     const liberiaTimeStr = now.toLocaleString("en-US", { timeZone: "Africa/Monrovia" });
     const liberiaTime = new Date(liberiaTimeStr);
 
@@ -69,8 +67,15 @@ export async function getConversationMessages(conversationId: string) {
 }
 
 export async function sendMessage(conversationId: string, content: string, senderType: 'customer' | 'admin') {
+    if (senderType === 'admin') {
+        try {
+            await verifyUserRole(["admin", "super_admin"]); // Centralized auth check
+        } catch (err: any) {
+            return { error: "Unauthorized" };
+        }
+    }
     const supabase = await createClient();
-    
+
     // Insert user's message
     const { data: newMsg, error: insertError } = await supabase
         .from("chat_messages")
@@ -89,13 +94,10 @@ export async function sendMessage(conversationId: string, content: string, sende
         .update({ updated_at: new Date().toISOString() })
         .eq("id", conversationId);
 
-    // GOLD STANDARD: Check for bot response
+    // Check for bot response
     const isOffHours = !isBusinessHoursLiberia();
     const { content: botContent, isHighConfidence } = await getSandoResponse(content, isOffHours);
 
-    // Trigger bot immediately if:
-    // 1. It is off-hours (regardless of confidence)
-    // 2. It is high-confidence knowledge match (even during business hours)
     let isBotReplying = false;
     if (senderType === 'customer' && (isOffHours || isHighConfidence)) {
         isBotReplying = await triggerBotResponse(conversationId, botContent, isHighConfidence);
@@ -106,9 +108,7 @@ export async function sendMessage(conversationId: string, content: string, sende
 
 export async function triggerTimeoutBot(conversationId: string) {
     const supabase = await createClient();
-    
-    // 1. Verify that the last message is still from the customer 
-    // and no bot/admin has replied in the last minute.
+
     const { data: messages } = await supabase
         .from("chat_messages")
         .select("sender_type, created_at")
@@ -117,9 +117,8 @@ export async function triggerTimeoutBot(conversationId: string) {
         .limit(1);
 
     if (messages && messages.length > 0 && messages[0].sender_type === 'customer') {
-        // Double check it's during business hours (if off-hours, Sando should have replied already)
         if (isBusinessHoursLiberia()) {
-            const { content: botContent } = await getSandoResponse("", false); // Get the "Busy" message
+            const { content: botContent } = await getSandoResponse("", false);
             await triggerBotResponse(conversationId, botContent, false);
         }
     }
@@ -128,7 +127,6 @@ export async function triggerTimeoutBot(conversationId: string) {
 async function triggerBotResponse(conversationId: string, content: string, force: boolean = false) {
     const supabase = await createClient();
 
-    // Check cooldown (only if not forced)
     if (!force) {
         const { data: lastBotMsg } = await supabase
             .from("chat_messages")
@@ -154,7 +152,7 @@ async function triggerBotResponse(conversationId: string, content: string, force
             sender_type: 'bot',
             content: content
         }]);
-        
+
     await supabase.from("chat_conversations")
         .update({ updated_at: new Date().toISOString() })
         .eq("id", conversationId);
@@ -165,59 +163,72 @@ async function triggerBotResponse(conversationId: string, content: string, force
 // ------ ADMIN ACTIONS ------
 
 export async function getAllConversations() {
-    const adminSupabase = createAdminClient();
-    const { data, error } = await adminSupabase
-        .from("chat_conversations")
-        .select(`
-            id, 
-            customer_id, 
-            status,
-            updated_at,
-            chat_messages (
-                content,
-                sender_type,
-                created_at
-            )
-        `)
-        .order("updated_at", { ascending: false });
+    try {
+        await verifyUserRole(["admin", "super_admin"]); // Centralized auth check
+        const adminSupabase = createAdminClient();
+        const { data, error } = await adminSupabase
+            .from("chat_conversations")
+            .select(`
+                id, 
+                customer_id, 
+                status,
+                updated_at,
+                chat_messages (
+                    content,
+                    sender_type,
+                    created_at
+                )
+            `)
+            .order("updated_at", { ascending: false });
 
-    if (error) return { error: error.message };
+        if (error) return { error: error.message };
 
-    // Post-process to just get the last message for the list
-    const parsed = (data || []).map((conv: any) => {
-        // Subquery returns an array, we find the latest
-        const msgs = conv.chat_messages || [];
-        msgs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        return {
-            id: conv.id,
-            customerId: conv.customer_id,
-            status: conv.status,
-            updatedAt: conv.updated_at,
-            lastMessage: msgs.length > 0 ? msgs[0] : null
-        };
-    });
+        const parsed = (data || []).map((conv: any) => {
+            const msgs = conv.chat_messages || [];
+            msgs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            return {
+                id: conv.id,
+                customerId: conv.customer_id,
+                status: conv.status,
+                updatedAt: conv.updated_at,
+                lastMessage: msgs.length > 0 ? msgs[0] : null
+            };
+        });
 
-    return { data: parsed };
+        return { data: parsed };
+    } catch (err: any) {
+        return { error: err.message };
+    }
 }
 
 export async function resolveConversation(conversationId: string) {
-    const adminSupabase = createAdminClient();
-    const { error } = await adminSupabase
-        .from("chat_conversations")
-        .update({ status: "resolved", updated_at: new Date().toISOString() })
-        .eq("id", conversationId);
-    
-    if (error) return { error: error.message };
-    return { success: true };
+    try {
+        await verifyUserRole(["admin", "super_admin"]); // Centralized auth check
+        const adminSupabase = createAdminClient();
+        const { error } = await adminSupabase
+            .from("chat_conversations")
+            .update({ status: "resolved", updated_at: new Date().toISOString() })
+            .eq("id", conversationId);
+
+        if (error) return { error: error.message };
+        return { success: true };
+    } catch (err: any) {
+        return { error: err.message };
+    }
 }
 
 export async function deleteConversation(conversationId: string) {
-    const adminSupabase = createAdminClient();
-    const { error } = await adminSupabase
-        .from("chat_conversations")
-        .delete()
-        .eq("id", conversationId);
-    
-    if (error) return { error: error.message };
-    return { success: true };
+    try {
+        await verifyUserRole(["admin", "super_admin"]); // Centralized auth check
+        const adminSupabase = createAdminClient();
+        const { error } = await adminSupabase
+            .from("chat_conversations")
+            .delete()
+            .eq("id", conversationId);
+
+        if (error) return { error: error.message };
+        return { success: true };
+    } catch (err: any) {
+        return { error: err.message };
+    }
 }

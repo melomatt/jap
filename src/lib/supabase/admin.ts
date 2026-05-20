@@ -5,7 +5,7 @@ export const createAdminClient = () => {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
   if (!url || !key) {
-    console.error("❌ Supabase Admin Credentials Missing:", { 
+    console.warn("⚠️ Supabase Admin Credentials Missing:", { 
         url: url ? "Present" : "MISSING", 
         serviceRoleKey: key ? "Present" : "MISSING" 
     });

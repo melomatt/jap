@@ -11,6 +11,17 @@ export default async function DiagnosticsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, status")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || profile.status?.toLowerCase() !== "active" || (profile.role !== "admin" && profile.role !== "super_admin")) {
+    redirect("/login?error=access_denied");
+  }
+
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
                  process.env.NEXT_PUBLIC_SUPABASE_KEY || 

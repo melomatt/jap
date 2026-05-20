@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 try {
-    const rootDir = "c:\\Users\\User\\Downloads\\jap\\jap-main";
+    const rootDir = path.join(__dirname, "..");
     const envPath = path.join(rootDir, ".env.local");
     const envContent = fs.readFileSync(envPath, 'utf8');
     envContent.split('\n').forEach(line => {
