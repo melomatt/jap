@@ -7,6 +7,12 @@ import Link from "next/link"
 import { ShieldAlert, Clock, Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"
 import { useLoader } from "@/components/providers/LoadingProvider"
 import { motion, AnimatePresence } from "framer-motion"
+import { z } from "zod"
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(1, "Password is required.")
+})
 
 export default function LoginPage({ cmsData }: { cmsData: any }) {
   const [email, setEmail] = useState("")
@@ -26,18 +32,30 @@ export default function LoginPage({ cmsData }: { cmsData: any }) {
     setIsLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-
-    if (error) {
-      if (error.message === "Failed to fetch" || error.message.includes("fetch")) {
-        setError("Network error: Unable to reach the server. Please check your internet connection.")
-      } else {
-        setError(error.message)
+    try {
+      const result = loginSchema.safeParse({ email, password })
+      if (!result.success) {
+        setError(result.error.errors[0].message)
+        setIsLoading(false)
+        return
       }
+
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (authError) {
+        if (authError.message === "Failed to fetch" || authError.message.includes("fetch")) {
+          setError("Network error: Unable to reach the server. Please check your internet connection.")
+        } else {
+          setError("Invalid email or password.")
+        }
+        setIsLoading(false)
+      } else {
+        router.push("/admin")
+        router.refresh()
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
-    } else {
-      router.push("/admin")
-      router.refresh()
     }
   }
 

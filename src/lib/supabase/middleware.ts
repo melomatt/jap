@@ -2,6 +2,11 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function updateSession(request: NextRequest) {
+  const isProtectedRoute =
+    request.nextUrl.pathname.startsWith("/admin") ||
+    request.nextUrl.pathname.startsWith("/users") ||
+    request.nextUrl.pathname.startsWith("/diagnostics");
+
   try {
     let supabaseResponse = NextResponse.next({ request })
 
@@ -13,6 +18,11 @@ export async function updateSession(request: NextRequest) {
 
     if (!supabaseUrl || !supabaseKey) {
       console.warn("Middleware Supabase credentials missing.");
+      if (isProtectedRoute) {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = "/login";
+        return NextResponse.redirect(redirectUrl);
+      }
       return NextResponse.next({ request });
     }
 
@@ -40,11 +50,6 @@ export async function updateSession(request: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser()
-
-    const isProtectedRoute =
-      request.nextUrl.pathname.startsWith("/admin") ||
-      request.nextUrl.pathname.startsWith("/users") ||
-      request.nextUrl.pathname.startsWith("/diagnostics");
 
     // Step 1: Redirect unauthenticated users away from protected routes
     if (!user && isProtectedRoute) {
@@ -102,6 +107,15 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   } catch (error) {
     console.error("Middleware failed:", error)
+    const isProtectedRoute =
+      request.nextUrl.pathname.startsWith("/admin") ||
+      request.nextUrl.pathname.startsWith("/users") ||
+      request.nextUrl.pathname.startsWith("/diagnostics");
+    if (isProtectedRoute) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/login";
+      return NextResponse.redirect(redirectUrl);
+    }
     return NextResponse.next({ request })
   }
 }

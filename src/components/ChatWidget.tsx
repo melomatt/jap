@@ -15,6 +15,8 @@ export default function ChatWidget() {
     const [isSending, setIsSending] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
+    const [isAdminTyping, setIsAdminTyping] = useState(false);
+    const typingTimeoutRef = useRef<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createClient();
 
@@ -49,6 +51,7 @@ export default function ChatWidget() {
             }, (payload: any) => {
                 const newMsg = payload.new;
                 setIsTyping(false); // Stop typing when any new message (bot or agent) arrives
+                setIsAdminTyping(false); // Hide admin typing animation when message arrives
                 setMessages(prev => {
                     if (prev.find(m => m.id === newMsg.id)) return prev;
                     
@@ -66,8 +69,20 @@ export default function ChatWidget() {
             })
             .subscribe();
 
+        // Listen to Admin typing indicator
+        const typingChannel = supabase
+            .channel(`typing:${conversationId}`)
+            .on('broadcast', { event: 'typing' }, (payload: any) => {
+                if (payload.payload.sender === 'admin') {
+                    setIsAdminTyping(payload.payload.isTyping);
+                }
+            })
+            .subscribe();
+
         return () => {
             supabase.removeChannel(channel);
+            supabase.removeChannel(typingChannel);
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         };
     }, [conversationId, supabase]);
 
@@ -111,9 +126,38 @@ export default function ChatWidget() {
         setIsLoading(false);
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewMessage(e.target.value);
+        if (!conversationId) return;
+
+        // Broadcast customer typing state
+        supabase.channel(`typing:${conversationId}`).send({
+            type: 'broadcast',
+            event: 'typing',
+            payload: { isTyping: true, sender: 'customer' }
+        });
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            supabase.channel(`typing:${conversationId}`).send({
+                type: 'broadcast',
+                event: 'typing',
+                payload: { isTyping: false, sender: 'customer' }
+            });
+        }, 1500);
+    };
+
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !conversationId) return;
+
+        // Clear typing timeout and broadcast stopped typing
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        supabase.channel(`typing:${conversationId}`).send({
+            type: 'broadcast',
+            event: 'typing',
+            payload: { isTyping: false, sender: 'customer' }
+        });
 
         const content = newMessage.trim();
         setNewMessage("");
@@ -205,10 +249,18 @@ export default function ChatWidget() {
                                     >
                                         {!isCustomer && !sameAsPrev && (
                                             <div className="flex items-center gap-2 mb-1.5 ml-1">
-                                                <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">
-                                                    <Bot className="w-3 h-3" />
+                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white ${
+                                                    msg.sender_type === 'admin' ? 'bg-gray-700 dark:bg-gray-600' : 'bg-blue-600'
+                                                }`}>
+                                                    {msg.sender_type === 'admin' ? (
+                                                        <User className="w-3 h-3" />
+                                                    ) : (
+                                                        <Bot className="w-3 h-3" />
+                                                    )}
                                                 </div>
-                                                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">Sando</span>
+                                                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">
+                                                    {msg.sender_type === 'admin' ? "Legal Advisor" : "Sando"}
+                                                </span>
                                             </div>
                                         )}
                                         <div className={`max-w-[88%] px-5 py-3 text-[16px] sm:text-[15px] leading-relaxed font-medium transition-all ${
@@ -260,6 +312,39 @@ export default function ChatWidget() {
                                 </motion.div>
                             )}
 
+                            {/* Admin Typing Indicator */}
+                            {isAdminTyping && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex flex-col items-start mt-2 ml-1"
+                                >
+                                    <div className="flex items-center gap-2 mb-1.5 ml-1">
+                                        <div className="w-5 h-5 rounded-full bg-gray-700 dark:bg-gray-600 flex items-center justify-center text-[10px] text-white">
+                                            <User className="w-3 h-3" />
+                                        </div>
+                                        <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">Legal Advisor</span>
+                                    </div>
+                                    <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] px-4 py-3 rounded-[1.4rem] rounded-bl-[0.3rem] shadow-sm flex gap-1 items-center">
+                                        <motion.div 
+                                            animate={{ scale: [1, 1.2, 1] }} 
+                                            transition={{ repeat: Infinity, duration: 0.6, delay: 0 }}
+                                            className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full" 
+                                        />
+                                        <motion.div 
+                                            animate={{ scale: [1, 1.2, 1] }} 
+                                            transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
+                                            className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full" 
+                                        />
+                                        <motion.div 
+                                            animate={{ scale: [1, 1.2, 1] }} 
+                                            transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}
+                                            className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full" 
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+
                             <div ref={messagesEndRef} />
                         </div>
 
@@ -272,7 +357,7 @@ export default function ChatWidget() {
                                 <input
                                     type="text"
                                     value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onChange={handleInputChange}
                                     placeholder="iMessage..."
                                     className="flex-1 bg-transparent border-none outline-none text-[16px] sm:text-[15px] py-1 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                                 />

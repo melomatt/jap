@@ -7,6 +7,17 @@ import Link from "next/link"
 import { User, Mail, Lock, CheckCircle, ArrowRight, Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react"
 import { useLoader } from "@/components/providers/LoadingProvider"
 import { motion, AnimatePresence } from "framer-motion"
+import { z } from "zod"
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters long."),
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters long."),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match!",
+  path: ["confirmPassword"],
+})
 
 export default function RegisterPage({ cmsData }: { cmsData: any }) {
   const [name, setName] = useState("")
@@ -26,32 +37,38 @@ export default function RegisterPage({ cmsData }: { cmsData: any }) {
     setIsLoading(true)
     setError(null)
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match!")
-      setIsLoading(false)
-      return
-    }
+    try {
+      const result = registerSchema.safeParse({ name, email, password, confirmPassword })
+      if (!result.success) {
+        setError(result.error.errors[0].message)
+        setIsLoading(false)
+        return
+      }
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          }
         }
-      }
-    })
+      })
 
-    if (error) {
-      if (error.message === "Failed to fetch" || error.message.includes("fetch")) {
-        setError("Network error: Unable to reach the server. Please check your internet connection.")
+      if (authError) {
+        if (authError.message === "Failed to fetch" || authError.message.includes("fetch")) {
+          setError("Network error: Unable to reach the server. Please check your internet connection.")
+        } else {
+          setError("Registration failed. Please try again or use a different email.")
+        }
+        setIsLoading(false)
       } else {
-        setError(error.message)
+        router.push("/pending")
+        router.refresh()
       }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
-    } else {
-      router.push("/pending")
-      router.refresh()
     }
   }
 

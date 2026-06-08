@@ -14,6 +14,8 @@ export default function AdminChatDashboard({ initialConversations }: { initialCo
     const [messages, setMessages] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const [isCustomerTyping, setIsCustomerTyping] = useState(false);
+    const typingTimeoutRef = useRef<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createClient();
     const { showLoader, hideLoader } = useLoader();
@@ -28,6 +30,7 @@ export default function AdminChatDashboard({ initialConversations }: { initialCo
                 
                 // Update active chat if currently open
                 if (newMsg.conversation_id === activeConvId) {
+                    setIsCustomerTyping(false); // Stop typing indicator when message arrives
                     setMessages(prev => {
                         if (prev.find(m => m.id === newMsg.id)) return prev;
                         
@@ -83,6 +86,28 @@ export default function AdminChatDashboard({ initialConversations }: { initialCo
         };
     }, [activeConvId, supabase]);
 
+    // Listen to Customer typing indicator
+    useEffect(() => {
+        if (!activeConvId) {
+            setIsCustomerTyping(false);
+            return;
+        }
+
+        const typingChannel = supabase
+            .channel(`typing:${activeConvId}`)
+            .on('broadcast', { event: 'typing' }, (payload: any) => {
+                if (payload.payload.sender === 'customer') {
+                    setIsCustomerTyping(payload.payload.isTyping);
+                }
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(typingChannel);
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        };
+    }, [activeConvId, supabase]);
+
     // Scroll to bottom when messages change
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -103,9 +128,38 @@ export default function AdminChatDashboard({ initialConversations }: { initialCo
         setMessages([]);
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewMessage(e.target.value);
+        if (!activeConvId) return;
+
+        // Broadcast admin typing state
+        supabase.channel(`typing:${activeConvId}`).send({
+            type: 'broadcast',
+            event: 'typing',
+            payload: { isTyping: true, sender: 'admin' }
+        });
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            supabase.channel(`typing:${activeConvId}`).send({
+                type: 'broadcast',
+                event: 'typing',
+                payload: { isTyping: false, sender: 'admin' }
+            });
+        }, 1500);
+    };
+
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !activeConvId) return;
+
+        // Clear typing timeout and broadcast stopped typing
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        supabase.channel(`typing:${activeConvId}`).send({
+            type: 'broadcast',
+            event: 'typing',
+            payload: { isTyping: false, sender: 'admin' }
+        });
 
         const content = newMessage.trim();
         setNewMessage("");
@@ -326,6 +380,26 @@ export default function AdminChatDashboard({ initialConversations }: { initialCo
                                     </div>
                                 );
                             })}
+
+                            {/* Customer Typing Indicator */}
+                            {isCustomerTyping && (
+                                <div className="flex flex-col items-start mt-2">
+                                    <div className="flex items-end gap-2 max-w-[85%] md:max-w-[70%]">
+                                        <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center shrink-0 mb-1 shadow-sm">
+                                            <User className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <div className="bg-white dark:bg-gray-700 px-4 py-2.5 text-sm rounded-2xl rounded-bl-sm border border-gray-100 dark:border-gray-600 flex gap-1 items-center">
+                                            <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                            <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                            <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                        </div>
+                                    </div>
+                                    <span className="text-[11px] text-gray-500 mt-1 mx-12 font-medium">
+                                        Visitor is typing...
+                                    </span>
+                                </div>
+                            )}
+
                             <div ref={messagesEndRef} />
                         </div>
 
@@ -340,7 +414,7 @@ export default function AdminChatDashboard({ initialConversations }: { initialCo
                                     <input
                                         type="text"
                                         value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onChange={handleInputChange}
                                         placeholder="Type your reply here..."
                                         className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 rounded-xl px-4 py-2.5 text-sm outline-none transition-all dark:text-white shadow-sm"
                                     />

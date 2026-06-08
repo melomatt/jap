@@ -1,4 +1,6 @@
 import "./globals.css"
+import ChatWidget from "@/components/ChatWidget";
+
 
 export const metadata = {
   title: "Justice Advocates & Partners",
@@ -10,6 +12,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         {children}
+        <ChatWidget />
+
       </body>
     </html>
   )

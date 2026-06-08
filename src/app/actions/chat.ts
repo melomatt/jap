@@ -100,7 +100,16 @@ export async function sendMessage(conversationId: string, content: string, sende
 
     let isBotReplying = false;
     if (senderType === 'customer' && (isOffHours || isHighConfidence)) {
-        isBotReplying = await triggerBotResponse(conversationId, botContent, isHighConfidence);
+        // Silence Sando if an admin has ever replied to this conversation
+        const { count: adminMsgCount } = await supabase
+            .from("chat_messages")
+            .select("*", { count: "exact", head: true })
+            .eq("conversation_id", conversationId)
+            .eq("sender_type", "admin");
+
+        if (!adminMsgCount || adminMsgCount === 0) {
+            isBotReplying = await triggerBotResponse(conversationId, botContent, isHighConfidence);
+        }
     }
 
     return { success: true, data: newMsg, isBotReplying };
@@ -108,6 +117,17 @@ export async function sendMessage(conversationId: string, content: string, sende
 
 export async function triggerTimeoutBot(conversationId: string) {
     const supabase = await createClient();
+
+    // Silence Sando if an admin has ever replied to this conversation
+    const { count: adminMsgCount } = await supabase
+        .from("chat_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("conversation_id", conversationId)
+        .eq("sender_type", "admin");
+
+    if (adminMsgCount && adminMsgCount > 0) {
+        return; // Admin is handling, do not trigger bot timeout response
+    }
 
     const { data: messages } = await supabase
         .from("chat_messages")
